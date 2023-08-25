@@ -117,7 +117,7 @@ blockquote:before,
 blockquote:after,
 q:before,
 q:after {
-  content: "";
+  content: '';
   content: none;
 }
 table {
@@ -134,4 +134,10 @@ table {
   display: flex;
   justify-content: center;
   margin: 30px 0 50px 0;
+}
+
+@media (max-width: 600px) {
+  .main-container {
+    width: 420px;
+  }
 }
