@@ -1,15 +1,16 @@
-import React, { Component } from "react";
-import MovieService from "../../services/movie-service";
-import MovieList from "../movie-list";
-import HeaderSearchBar from "../header-search-bar";
-import "./app.css";
-import { Alert, Pagination, Tabs } from "antd";
-import { Provider } from "../../services/genre-context";
+import React, { Component } from 'react'
+import { Alert, Pagination, Tabs } from 'antd'
+
+import MovieService from '../../services/movie-service'
+import MovieList from '../movie-list'
+import HeaderSearchBar from '../header-search-bar'
+import './app.css'
+import { Provider } from '../../services/genre-context'
 
 export default class App extends Component {
   constructor(props) {
-    super(props);
-    this.movieService = new MovieService();
+    super(props)
+    this.movieService = new MovieService()
     this.state = {
       movieData: [],
       ratedMovieData: [],
@@ -17,27 +18,29 @@ export default class App extends Component {
       error: null,
       currentPage: 1,
       totalPages: 1,
-      searchValue: "",
+      ratedCurrentPage: 1,
+      ratedTotalPages: 1,
+      searchValue: '',
       genres: null,
       guestToken: null,
-    };
-  }
-
-  async componentDidMount() {
-    this.fetchMovieData();
-    try {
-      const genreData = await this.movieService.getGenresMovie();
-      const guestToken = await this.movieService.getGuestSession();
-      this.setState({ guestToken: guestToken.guest_session_id });
-      this.setState({ genres: genreData.genres });
-    } catch (err) {
-      console.log(err);
     }
   }
 
-  fetchMovieData = async (searchValue = "", page) => {
+  async componentDidMount() {
+    this.fetchMovieData()
     try {
-      const data = await this.movieService.getSearchMovie(searchValue, page);
+      const genreData = await this.movieService.getGenresMovie()
+      const guestToken = await this.movieService.getGuestSession()
+      this.setState({ guestToken: guestToken.guest_session_id })
+      this.setState({ genres: genreData.genres })
+    } catch (err) {
+      throw new Error(err)
+    }
+  }
+
+  fetchMovieData = async (searchValue = '', page) => {
+    try {
+      const data = await this.movieService.getSearchMovie(searchValue, page)
       this.setState({
         movieData: data.results,
         loading: false,
@@ -45,28 +48,30 @@ export default class App extends Component {
         currentPage: data.page,
         totalPages: data.total_pages,
         searchValue,
-      });
+      })
     } catch (error) {
       this.setState({
         loading: false,
         error: error.message,
-      });
+      })
     }
-  };
+  }
 
-  handleVoteRated = async (key) => {
-    if (key === "Rated") {
+  handleVoteRated = async (key, page = 1) => {
+    if (key === 'Rated') {
       try {
-        const ratedMovieData = await this.movieService.getRatedMovies(
-          this.state.guestToken
-        );
+        const { guestToken } = this.state
+        const ratedMovieData = await this.movieService.getRatedMovies(guestToken, page)
         this.setState({
           ratedMovieData: ratedMovieData.results,
-        });
-        await console.log(ratedMovieData);
-      } catch (err) {}
+          ratedCurrentPage: ratedMovieData.page,
+          ratedTotalPages: ratedMovieData.total_pages,
+        })
+      } catch (err) {
+        throw new Error(err)
+      }
     }
-  };
+  }
 
   handlePageChange = (page) => {
     this.setState(
@@ -75,48 +80,26 @@ export default class App extends Component {
         loading: true,
       },
       () => {
-        this.fetchMovieData(this.state.searchValue, page);
+        this.fetchMovieData(this.state.searchValue, page)
       }
-    );
-  };
-
-  handleSearch = (searchValue) => {
-    this.setState(
-      {
-        searchValue,
-        currentPage: 1,
-        loading: true,
-      },
-      () => {
-        this.fetchMovieData(searchValue, 1);
-      }
-    );
-  };
+    )
+  }
 
   render() {
-    const { movieData, loading, error, currentPage, totalPages, guestToken } =
-      this.state;
+    const { movieData, loading, error, currentPage, totalPages, guestToken } = this.state
 
     const item = [
       {
-        key: "Search",
-        label: "Search",
+        key: 'Search',
+        label: 'Search',
         children: (
           <>
             <HeaderSearchBar onSearch={this.fetchMovieData} />
             {error ? (
-              <Alert
-                message={`Error fetching movie data: ${error}`}
-                type="error"
-                showIcon
-              />
+              <Alert message={`Error fetching movie data: ${error}`} type="error" showIcon />
             ) : (
               <>
-                <MovieList
-                  movieData={movieData}
-                  loading={loading}
-                  guestToken={guestToken}
-                />
+                <MovieList movieData={movieData} loading={loading} guestToken={guestToken} />
                 <Pagination
                   className="pagination"
                   defaultCurrent={currentPage}
@@ -130,23 +113,29 @@ export default class App extends Component {
         ),
       },
       {
-        key: "Rated",
-        label: "Rated",
-        children: <MovieList movieData={this.state.ratedMovieData} />,
+        key: 'Rated',
+        label: 'Rated',
+        children: (
+          <>
+            <MovieList movieData={this.state.ratedMovieData} />,
+            <Pagination
+              className="pagination"
+              current={this.state.ratedCurrentPage}
+              total={this.state.ratedTotalPages}
+              pageSize={20}
+              onChange={(page) => this.handleVoteRated('Rated', page)}
+            />
+          </>
+        ),
       },
-    ];
+    ]
 
     return (
       <Provider value={this.state.genres}>
         <main className="main-container">
-          <Tabs
-            defaultActiveKey="Search"
-            centered
-            items={item}
-            onChange={(key) => this.handleVoteRated(key)}
-          ></Tabs>
+          <Tabs defaultActiveKey="Search" centered items={item} onChange={(key) => this.handleVoteRated(key)} />
         </main>
       </Provider>
-    );
+    )
   }
 }

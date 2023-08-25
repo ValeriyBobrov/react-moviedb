@@ -1,3 +1,3 @@
-import FilmTags from "./filmTags";
+import FilmTags from './filmTags'
 
-export default FilmTags;
+export default FilmTags

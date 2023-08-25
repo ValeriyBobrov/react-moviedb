@@ -1,3 +1,3 @@
-import HeaderSearchBar from "./headerSearchBar";
+import HeaderSearchBar from './headerSearchBar'
 
-export default HeaderSearchBar;
+export default HeaderSearchBar

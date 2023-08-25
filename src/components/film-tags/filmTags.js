@@ -1,29 +1,30 @@
-import React, { Component } from "react";
-import { Consumer } from "../../services/genre-context";
-import "./filmTags.css";
+import React from 'react'
 
-export default class FilmTags extends Component {
-  render() {
-    const { genreIds } = this.props;
+import { Consumer } from '../../services/genre-context'
+import './filmTags.css'
 
-    return (
-      <Consumer>
-        {(genres) => {
-          const genreSpans = genreIds.map((id) => {
-            const genre = genres.find((genre) => genre.id === id);
-            if (genre) {
-              return (
-                <span key={genre.id} className="genre-span">
-                  {genre.name}
-                </span>
-              );
-            }
-            return null;
-          });
+function FilmTags(props) {
+  const { genreIds } = props
 
-          return <div className="genre-tags">{genreSpans}</div>;
-        }}
-      </Consumer>
-    );
-  }
+  return (
+    <Consumer>
+      {(genres) => {
+        const genreSpans = genreIds.map((id) => {
+          const genre = genres.find((genreList) => genreList.id === id)
+          if (genre) {
+            return (
+              <span key={genre.id} className="genre-span">
+                {genre.name}
+              </span>
+            )
+          }
+          return null
+        })
+
+        return <div className="genre-tags">{genreSpans}</div>
+      }}
+    </Consumer>
+  )
 }
+
+export default FilmTags
