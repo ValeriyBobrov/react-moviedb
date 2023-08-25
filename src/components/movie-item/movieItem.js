@@ -27,8 +27,8 @@ export default class MovieItem extends Component {
   }
 
   overviewCheck(overview) {
-    if (overview.length > 140) {
-      const trimmedOverview = overview.substring(0, 140)
+    if (overview.length > 100) {
+      const trimmedOverview = overview.substring(0, 100)
       const lastSpaceIndex = trimmedOverview.lastIndexOf(' ')
 
       if (lastSpaceIndex !== -1) {
