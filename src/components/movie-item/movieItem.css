@@ -1,6 +1,6 @@
 .movie-item {
   position: relative;
-  width: 450px;
+  width: 500px;
   height: 280px;
   display: flex;
 }
@@ -37,4 +37,8 @@
   display: flex;
   justify-content: center;
   text-align: center;
+}
+
+.rate {
+  margin-top: auto;
 }

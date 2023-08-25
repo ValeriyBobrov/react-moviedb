@@ -1,13 +1,21 @@
 import React, { Component } from "react";
-import { Card } from "antd";
+import MovieService from "../../services/movie-service";
+import { Card, Rate } from "antd";
 import { parse, format } from "date-fns";
 import "./movieItem.css";
 import noImage from "../../img/no-image.jpg";
+import FilmTags from "../film-tags";
 
 export default class MovieItem extends Component {
+  state = {
+    voteValue: 0,
+  };
+
+  movieService = new MovieService();
+
   overviewCheck(overview) {
-    if (overview.length > 200) {
-      const trimmedOverview = overview.substring(0, 200);
+    if (overview.length > 140) {
+      const trimmedOverview = overview.substring(0, 140);
       const lastSpaceIndex = trimmedOverview.lastIndexOf(" ");
 
       if (lastSpaceIndex !== -1) {
@@ -18,9 +26,31 @@ export default class MovieItem extends Component {
     return overview;
   }
 
+  handleRatingChange = async (newRating) => {
+    try {
+      const { id, guestToken } = this.props;
+      await this.movieService.postRatedMovie(newRating, id, guestToken);
+      this.setState({
+        voteValue: newRating,
+      });
+    } catch (error) {
+      console.error("Error while updating rating:", error);
+    }
+  };
+
   render() {
-    const { id, title, releaseDate, overview, posterPath, voteAverage } =
-      this.props;
+    const {
+      id,
+      title,
+      releaseDate,
+      overview,
+      posterPath,
+      voteAverage,
+      genreIds,
+      rating,
+    } = this.props;
+
+    const { voteValue } = this.state;
 
     const roundedVoteAverage = Math.round(voteAverage * 10) / 10;
 
@@ -42,13 +72,16 @@ export default class MovieItem extends Component {
     if (!releaseDate) {
       return null;
     }
+
     const formattedReleaseDate = format(
       parse(releaseDate, "yyyy-MM-dd", new Date()),
       "MMMM d, yyyy"
     );
+
     const imageUrl = posterPath
       ? `https://image.tmdb.org/t/p/w200${posterPath}`
       : noImage;
+
     return (
       <Card key={id}>
         <div className="movie-item">
@@ -66,13 +99,20 @@ export default class MovieItem extends Component {
             <div className="vote" style={borderStyle}>
               <span>{roundedVoteAverage}</span>
             </div>
-            <p className="film-tag">### ###</p>
+            <FilmTags className="film-tag" genreIds={genreIds}></FilmTags>
             <p className="releaseDate" value={releaseDate}>
               {formattedReleaseDate}
             </p>
             <p className="overview" value={overview}>
               {this.overviewCheck(overview)}
             </p>
+            <Rate
+              className="rate"
+              count={10}
+              defaultValue={voteValue}
+              value={rating ? rating : voteValue}
+              onChange={rating ? null : this.handleRatingChange}
+            />
           </div>
         </div>
       </Card>

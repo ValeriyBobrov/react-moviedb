@@ -24,6 +24,9 @@ export default class MovieList extends Component {
         overview={item.overview}
         posterPath={item.poster_path}
         voteAverage={item.vote_average}
+        genreIds={item.genre_ids}
+        guestToken={this.props.guestToken}
+        rating={item.rating}
       />
     ));
 
