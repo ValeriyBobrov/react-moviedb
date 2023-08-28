@@ -9,7 +9,7 @@ function MovieList(props) {
   const { movieData, loading, guestToken } = props
 
   if (movieData.length === 0) {
-    return <Empty description="No movies found" />
+    return <Empty description="No movies found or search input empty" />
   }
 
   if (loading) {

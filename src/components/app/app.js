@@ -100,13 +100,15 @@ export default class App extends Component {
             ) : (
               <>
                 <MovieList movieData={movieData} loading={loading} guestToken={guestToken} />
-                <Pagination
-                  className="pagination"
-                  defaultCurrent={currentPage}
-                  total={totalPages}
-                  pageSize={20}
-                  onChange={this.handlePageChange}
-                />
+                {movieData.length === 0 ? null : (
+                  <Pagination
+                    className="pagination"
+                    defaultCurrent={currentPage}
+                    total={totalPages}
+                    pageSize={20}
+                    onChange={this.handlePageChange}
+                  />
+                )}
               </>
             )}
           </>
@@ -118,13 +120,15 @@ export default class App extends Component {
         children: (
           <>
             <MovieList movieData={this.state.ratedMovieData} />,
-            <Pagination
-              className="pagination"
-              current={this.state.ratedCurrentPage}
-              total={this.state.ratedTotalPages}
-              pageSize={20}
-              onChange={(page) => this.handleVoteRated('Rated', page)}
-            />
+            {this.state.ratedMovieData === 0 ? (
+              <Pagination
+                className="pagination"
+                current={this.state.ratedCurrentPage}
+                total={this.state.ratedTotalPages}
+                pageSize={20}
+                onChange={(page) => this.handleVoteRated('Rated', page)}
+              />
+            ) : null}
           </>
         ),
       },
